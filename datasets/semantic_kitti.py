@@ -215,6 +215,12 @@ class SemanticKITTI(PCDataset):
                 )
             )
         self.im_idx = np.sort(self.im_idx)
+        filtered = []
+        for path in self.im_idx:
+            frame_id = int(path.split("/")[-1].split(".")[0])
+            if frame_id % 5 == 0:
+                filtered.append(path)
+        self.im_idx = filtered
 
         # Training with instance cutmix
         if self.instance_cutmix:
