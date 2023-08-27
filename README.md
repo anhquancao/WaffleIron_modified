@@ -132,12 +132,14 @@ python eval_kitti.py \
 --path_dataset /gpfswork/rech/kvd/uyl37fq/data/semantic_kitti \
 --ckpt pretrained_models/WaffleIron-48-256__40cm-BEV-cutmix-kitti/ckpt_last.pth \
 --config ./configs/WaffleIron-48-256__40cm-BEV-cutmix-kitti.yaml \
---result_folder /gpfsscratch/rech/kvd/uyl37fq/temp/prediction_kittis/ \
+--result_folder /gpfsscratch/rech/kvd/uyl37fq/monoscene_preprocess/kitti/waffleiron \
 --phase val \
---num_votes=1 \
---num_workers 8
+--num_workers 8 \
+--num_votes 10 \
+--batch_size 5
 ```
 
+/gpfsscratch/rech/kvd/uyl37fq/temp/prediction_kittis/
 The predictions can be evaluated using the official APIs by typing
 ```
 git clone https://github.com/PRBonn/semantic-kitti-api.git

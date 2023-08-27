@@ -130,58 +130,49 @@ if __name__ == "__main__":
             with torch.inference_mode():
                 # Get prediction
                 embedding, feats, out = net(*net_inputs)
-                # import pdb;pdb.set_trace()
-        #         for b in range(out.shape[0]):
-        #             temp = out[b, :, batch["upsample"][b]].T
-        #             if vote is None:
-        #                 vote = torch.softmax(temp, dim=1)
-        #             else:
-        #                 vote += torch.softmax(temp, dim=1)
-        # id_vote += 1
-
+                for b in range(out.shape[0]):
+                    temp = out[b, :, batch["upsample"][b]].T
+                    if vote is None:
+                        vote = torch.softmax(temp, dim=1)
+                    else:
+                        vote += torch.softmax(temp, dim=1)
+                id_vote += 1
         
-        
-
-        # Save prediction
-        # if id_vote == args.num_votes:
-            # Convert label
-            # pred_label = vote.max(1)[1] + 1 # Shift by 1 because of ignore_label at index 0
-            # label = pred_label.cpu().numpy().reshape((-1)).astype(np.uint32)
-            # upper_half = label >> 16  # get upper half for instances
-            # lower_half = label & 0xFFFF  # get lower half for semantics
-            # lower_half = remap_lut[lower_half]  # do the remapping of semantics
-            # label = (upper_half << 16) + lower_half  # reconstruct full label
-            # label = label.astype(np.uint32)
-            # Save result
-        assert batch["filename"][0] == batch["filename"][-1]
-            # label_file = batch["filename"][0][len(dataset.rootdir) + len("/dataset"):]
-            # label_file = label_file.replace("velodyne", "predictions")[:-3] + "label"
-
-        save_file = batch["filename"][0][len(dataset.rootdir) + len("/dataset"):]
-        save_file = save_file.replace("velodyne", "seg_feats")[:-3] + "pkl"
-        save_file = args.result_folder + save_file
-        if os.path.exists(save_file):
-            continue
-        os.makedirs(os.path.split(save_file)[0], exist_ok=True)
-        
-        feats = feats.cpu().numpy()
-        embedding = embedding.cpu().numpy()
-
-        banana = {
-            "embedding": embedding.squeeze().T,
-            "feats": feats.squeeze().T, 
-            "coords": coords[0]
-        }
-        # import pdb;pdb.set_trace()
-        with open(save_file, 'wb') as fp:
-            pickle.dump(banana, fp)
-            print("saved to {}".format(save_file))
-     
-            # label_file = os.path.join(args.result_folder, label_file)
-            # label_file = args.result_folder + label_file
+        if id_vote == args.num_votes:
+            assert batch["filename"][0] == batch["filename"][-1]
+                # label_file = batch["filename"][0][len(dataset.rootdir) + len("/dataset"):]
+                # label_file = label_file.replace("velodyne", "predictions")[:-3] + "label"
+            save_file = batch["filename"][0][len(dataset.rootdir) + len("/dataset"):]
+            # save_file = save_file.replace("velodyne", "seg_feats")[:-3] + "pkl"
+            save_file = save_file.replace("velodyne", "seg_feats_tta")[:-3] + "pkl"
+            save_file = args.result_folder + save_file
+            # if os.path.exists(save_file):
+            #     continue
+            os.makedirs(os.path.split(save_file)[0], exist_ok=True)
+            
+            # feats = feats.cpu().numpy()
+            # embedding = embedding.cpu().numpy()
+            # out = out.cpu().numpy()
+            vote = vote / (args.num_votes * args.batch_size)
+            # print(vote.min(), vote.max())
+            id_vote = 0
+            banana = {
+                # "embedding": embedding.squeeze().T,
+                # "feats": feats.squeeze().T, 
+                # "out_logits": out.squeeze().T,
+                # "coords": coords[0]
+                "vote": vote.cpu().numpy(),
+            }
             # import pdb;pdb.set_trace()
+            with open(save_file, 'wb') as fp:
+                pickle.dump(banana, fp)
+                print("saved to {}".format(save_file))
         
-            # os.makedirs(os.path.split(label_file)[0], exist_ok=True)
-            # label.tofile(label_file)
-            # Reset count of votes
-            # id_vote = 0
+                # label_file = os.path.join(args.result_folder, label_file)
+                # label_file = args.result_folder + label_file
+                # import pdb;pdb.set_trace()
+            
+                # os.makedirs(os.path.split(label_file)[0], exist_ok=True)
+                # label.tofile(label_file)
+                # Reset count of votes
+                # id_vote = 0
