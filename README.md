@@ -129,7 +129,7 @@ python nuscenes-devkit/python-sdk/nuscenes/eval/lidarseg/evaluate.py \
 To evaluate the pre-trained model on SemanticKITTI, type
 ```
 python eval_kitti.py \
---path_dataset /gpfswork/rech/kvd/uyl37fq/data/semantic_kitti \
+--path_dataset /gpfsdswork/dataset/SemanticKITTI \
 --ckpt pretrained_models/WaffleIron-48-256__40cm-BEV-cutmix-kitti/ckpt_last.pth \
 --config ./configs/WaffleIron-48-256__40cm-BEV-cutmix-kitti.yaml \
 --result_folder /gpfsscratch/rech/kvd/uyl37fq/monoscene_preprocess/kitti/waffleiron \

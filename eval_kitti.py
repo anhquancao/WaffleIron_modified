@@ -114,7 +114,7 @@ if __name__ == "__main__":
             vote = None
 
         # Network inputs
-        coords = batch["coords"]
+        coords = batch["pc_orig"]
         feat = batch["feat"].cuda(non_blocking=True)
         labels = batch["labels_orig"].cuda(non_blocking=True)
         batch["upsample"] = [
@@ -125,6 +125,7 @@ if __name__ == "__main__":
         neighbors_emb = batch["neighbors_emb"].cuda(non_blocking=True)
         net_inputs = (feat, cell_ind, occupied_cell, neighbors_emb)
 
+        assert (coords[0] - coords[1]).sum() == 0
         # Get prediction
         with torch.autocast("cuda", enabled=True):
             with torch.inference_mode():
@@ -156,11 +157,12 @@ if __name__ == "__main__":
             vote = vote / (args.num_votes * args.batch_size)
             # print(vote.min(), vote.max())
             id_vote = 0
+            assert coords[0].shape[0] == vote.shape[0]
             banana = {
                 # "embedding": embedding.squeeze().T,
                 # "feats": feats.squeeze().T, 
                 # "out_logits": out.squeeze().T,
-                # "coords": coords[0]
+                "coords": coords[0],
                 "vote": vote.cpu().numpy(),
             }
             # import pdb;pdb.set_trace()

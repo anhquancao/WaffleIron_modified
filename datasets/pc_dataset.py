@@ -155,6 +155,7 @@ class PCDataset(Dataset):
 
         # Prepare input feature
         pc_orig = self.prepare_input_features(pc_orig)
+        pc_orig_no_tta = pc_orig.copy()
 
         # Test time augmentation
         if self.tta is not None:
@@ -187,6 +188,7 @@ class PCDataset(Dataset):
 
         # Output to return
         out = (
+            pc_orig_no_tta[:, :3],
             # Point coordinates
             pc[:, :3],
             # Point features
@@ -239,7 +241,7 @@ class Collate:
 
         # Extract all data
         list_of_data = (list(data) for data in zip(*list_data))
-        coords, feat, label_orig, cell_ind, neighbors_emb, upsample, filename = list_of_data
+        pc_orig, coords, feat, label_orig, cell_ind, neighbors_emb, upsample, filename = list_of_data
 
         # Zero-pad point clouds
         Nmax = np.max([f.shape[-1] for f in feat])
@@ -267,6 +269,7 @@ class Collate:
 
         # Prepare output variables
         out = {
+            "pc_orig": pc_orig,
             "coords": coords,
             "feat": feat,
             "neighbors_emb": neighbors_emb,
